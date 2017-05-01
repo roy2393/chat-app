@@ -1,0 +1,44 @@
+body{
+	margin-top: 50px;
+}
+
+#messages{
+	min-height: 300px; overflow: auto;
+	,max-height: 500px;
+	background: #eee;
+}
+
+.chat-heading{
+	background: #337ab7;
+	color: white;
+	padding: 15px;
+}
+
+.chat-heading p{
+	margin-bottom: 0;
+}
+.chat-bubble{
+	display: table;
+	width: 100%;
+}
+
+
+.chat-bubble > .panel{
+	display: inline-block;
+	min-width: 100px;
+	margin: 10px;
+}
+
+#login-page{
+	margin-top: 100px;
+}
+
+#login-btn{
+	width: 100%;
+}
+
+.list-group{
+	cursor: pointer;
+
+}
+

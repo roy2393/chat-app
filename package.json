@@ -1,0 +1,13 @@
+{
+	"name": "socket-chat",
+	"version": "0.0.1",
+	"description": "Socket io chat implementation for Wit Pay",
+	"author": "Rohit",
+	"license": "",
+	"dependencies": {
+		"express": "4.14.0",
+	    "body-parser": "1.15.2",
+	    "socket.io": "1.7.1",
+	    "ejs":"2.5.3"
+	}
+}

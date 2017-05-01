@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Wit Pay chat app</title>
+
+    <link rel="shortcut icon" href="dist/img/fav.ico">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/font-awesome.min.css" media="screen" title="no title">
+    <link rel="stylesheet" href="css/bootstrap.css" media="screen" title="no title">
+    <link rel="stylesheet" href="css/style.css" media="screen" title="no title">
+
+  </head>
+  <body>
+
+    <div class="container">
+
+
+      <div class="row">
+
+        <div class="col-lg-8">
+        <div class="chat-heading">
+            <p>Send Message to <b><span  data-bind="text: selectedUserName"></span></b></p>
+        </div>
+        <div id="messages" data-bind="foreach: messages">
+            <div class="chat-bubble">
+                <!-- ko if: $data.message -->
+               <div class="panel panel-success pull-right">
+                   <div class="panel-heading">
+                        <h3 class="panel-title text-right" data-bind="text: $data.name"></h3>
+                      </div>
+                  <div class="panel-body">
+                    <p class="text-right" data-bind="text: $data.message"></p>
+                  </div>
+                </div>
+                <!-- /ko -->
+
+                 <!-- ko if: $data.msg -->
+               <div class="panel panel-primary">
+                   <div class="panel-heading">
+                        <h3 class="panel-title" data-bind="text: $data.name"></h3>
+                      </div>
+                  <div class="panel-body">
+                    <p data-bind="text: $data.msg"></p>
+                  </div>
+                </div>
+                <!-- /ko -->
+            </div>
+        </div>
+        <form data-bind="submit: sendMessage">
+          <div class="input-group">
+            <input id="m" type="text" class="form-control" autocomplete="off" placeholder="Search for...">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" data-bind="click: sendMessage"><span class="fa fa-paper-plane"></span></button>
+            </span>
+          </div><!-- /input-group -->
+        </form>
+        </div><!-- /.col-lg-6 -->
+
+
+        <!-- Online Users List -->
+        <div class="col-md-4">
+          <ul class="list-group" data-bind="foreach: userList">
+            <li data-bind="click: $parent.chatWith($data), attr: { class: ($data.id == $parent.selectedUser())? ' list-group-item active': 'list-group-item'}">
+              <span data-bind="text: ($data.id == $parent.socketId()) ? $parent.userName()+' (Me)' : $data.userName, 
+                            "></span>
+            </li>
+          </ul>
+        </div>
+      </div><!-- /.row -->      
+    </div>
+    </div>
+
+
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+    <script src="js/jquery-2.1.3.min.js" charset="utf-8"></script>
+    <script src="js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="js/knockout.min.js" charset="utf-8"></script>
+
+    <script>
+
+      const socket = io.connect();
+    // This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI
+    var data = {
+      username : 'Chris',
+      content: 'Hello',
+      created: new Date()
+    };
+
+function AppViewModel() {
+  var self = this;
+
+    self.socketId = ko.observable();
+    self.userList = ko.observableArray();
+    self.selectedUser = ko.observable('');
+
+    self.selectedUser.subscribe(function(newVal){
+        self.messages.removeAll();
+    })
+    self.selectedUserName = ko.observable('');
+    self.userName = ko.observable('');
+    self.users = ko.observableArray();
+
+
+    self.startChat = function(){
+        var userInfo = {
+            username : $('#username').val(),
+            created  : new Date(),
+            lastActive: new Date(),
+            isActive: true,
+        }
+        socket.emit('new user', userInfo);
+        console.log('Data - ', userInfo);
+        // socket.emit('chat message', $('#m').val());
+    }
+
+    self.chatWith = function(user){
+
+        self.selectedUser(user.id);
+        self.selectedUserName(user.userName);
+        
+        console.log('Chat with - ', user.id);
+    }
+
+    self.sendMessage = function(ui, event){
+        console.log('send message  -- ', self.selectedUser());
+            var message = $('#m').val();
+
+            socket.emit('getMsg',{
+                toid : self.selectedUser(),
+                msg : message,
+                name : self.userName()
+            });
+            self.messages.push({message: message, name: 'Me'});
+
+            $('#m').val('');
+
+
+
+            return false;
+    }
+
+    self.messages = ko.observableArray();
+}
+
+var viewmodel = new AppViewModel();
+
+// Activates knockout.js
+ko.applyBindings(viewmodel);
+
+
+    function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+
+    console.log('params - ', sParameterName);
+};
+
+$(function (){
+    viewmodel.userName(getUrlParameter('name'));
+
+    if(viewmodel.userName() == undefined || viewmodel.userName() == ""){
+        window.location.href = '/login';
+    }
+        // viewmodel.userName(window.prompt('Enter Your Name'));
+        // if (viewmodel.userName() === '') {
+        //     window.location.reload();
+        // }
+
+    socket.emit('username',viewmodel.userName());
+    socket.on('userList', function(userList,socketId){
+
+        viewmodel.socketId(socketId);
+
+        viewmodel.userList(userList);
+
+        console.log('User List - ',viewmodel.userList());
+        console.log('Socket Id - ',viewmodel.socketId());
+    }); 
+
+
+    socket.on('exit', (userList) => {
+        viewmodel.userList(userList);
+    });
+
+    socket.on('sendMsg', (data) => {
+        console.log('data received  -- ', data);
+        viewmodel.messages.push(data);
+    });
+
+});
+
+    </script>
+  </body>
+</html>

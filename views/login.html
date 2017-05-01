@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Wit Pay chat app</title>
+
+    <link rel="shortcut icon" href="dist/img/fav.ico">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/font-awesome.min.css" media="screen" title="no title">
+    <link rel="stylesheet" href="css/bootstrap.css" media="screen" title="no title">
+    <link rel="stylesheet" href="css/style.css" media="screen" title="no title">
+</head>
+<body>
+
+	<div id="login-page" class="container">
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<div class="panel panel-warning">
+			        <div class="panel-heading">
+			          <h3 class="panel-title text-right">Enter chat room</h3>
+			        </div>
+			        <div class="panel-body">
+			        	<form data-bind="submit: enterChat">
+			          		<input id="userName" autocomplete="off" required type="text" class="form-control" aria-label="" placeholder="Enter your user name">
+			          		<br>
+			        		<button id="login-btn" class="btn btn-primary">Login</button>
+			        	</form>
+			        </div>
+			    </div>
+			</div>
+		</div>
+	</div>
+
+	   
+
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script src="js/jquery-2.1.3.min.js" charset="utf-8"></script>
+    <script src="js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="js/knockout.min.js" charset="utf-8"></script>
+
+    <script>
+
+      const socket = io.connect();
+
+function AppViewModel() {
+  var self = this;
+  self.enterChat = function(){
+  	var userName = $('#userName').val();
+  	console.log(userName);
+  	window.location.href = '/?name='+userName;
+  }
+}
+
+var viewmodel = new AppViewModel();
+
+// Activates knockout.js
+ko.applyBindings(viewmodel);
+
+
+
+$(function (){
+
+
+});
+
+    </script>
+</body>
+</html>

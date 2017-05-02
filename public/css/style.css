@@ -2,6 +2,12 @@ body{
 	margin-top: 50px;
 }
 
+.small-info{
+	float: right;
+    font-size: 12px;
+    font-style: italic;
+}
+
 #messages{
 	min-height: 300px; overflow: auto;
 	,max-height: 500px;

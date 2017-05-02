@@ -9,6 +9,9 @@ const socketio = require('socket.io');
 const bodyParser = require('body-parser');
 
 
+let server = require('http').Server(express());
+
+
 const routes = require('./utils/routes'); 
 const config = require('./utils/config'); 
 
@@ -16,8 +19,8 @@ const config = require('./utils/config');
 class Server{
 
     constructor(){
-        this.port =  process.env.PORT || 3000;
-        this.host = `localhost`;
+        this.port =  process.env.PORT || 5000;
+        this.host = 'localhost';
         
         this.app = express();
         this.http = http.Server(this.app);
@@ -42,6 +45,9 @@ class Server{
         this.appConfig();
         this.includeRoutes();
 
+        // this.server.listen(this.port, function() {
+        //     console.log("App is running on port " + port);
+        // });
         this.http.listen(this.port, this.host, () => {
             console.log(`Listening on http://${this.host}:${this.port}`);
         });

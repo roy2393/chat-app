@@ -21,7 +21,7 @@
 
         <div class="col-lg-8">
         <div class="chat-heading">
-            <p>Send Message to <b><span  data-bind="text: selectedUserName"></span></b></p>
+            <p>Send Message to <b><span  data-bind="text: selectedUserName"></span> </b></p>
         </div>
         <div id="messages" data-bind="foreach: messages">
             <div class="chat-bubble">
@@ -32,6 +32,9 @@
                       </div>
                   <div class="panel-body">
                     <p class="text-right" data-bind="text: $data.message"></p>
+                    
+                    <p class="small-info"> - <span data-bind="text: $data.to"></span></i></small></p>
+
                   </div>
                 </div>
                 <!-- /ko -->
@@ -97,7 +100,7 @@ function AppViewModel() {
     self.selectedUser = ko.observable('');
 
     self.selectedUser.subscribe(function(newVal){
-        self.messages.removeAll();
+        // self.messages.removeAll();
     })
     self.selectedUserName = ko.observable('');
     self.userName = ko.observable('');
@@ -133,7 +136,7 @@ function AppViewModel() {
                 msg : message,
                 name : self.userName()
             });
-            self.messages.push({message: message, name: 'Me'});
+            self.messages.push({message: message, name: 'Me', to: self.selectedUserName()});
 
             $('#m').val('');
 
@@ -197,6 +200,7 @@ $(function (){
 
     socket.on('sendMsg', (data) => {
         console.log('data received  -- ', data);
+        viewmodel.selectedUserName(data.name);
         viewmodel.messages.push(data);
     });
 
